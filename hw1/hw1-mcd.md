@@ -6,8 +6,6 @@ Fall 2014
 
 ### Problem 1
 
-todo
-
 \begin{eqnarray*}
 X &\sim& Unif(0,1) \\
 m &=& \mathbb{E}(X) = 0.5 \\
@@ -65,4 +63,12 @@ The expected value of the sum of two rolls is:
 
 ### Problem 5
 
-todo: problem 2.10
+Using the relations given in Exercise 2.9, we can show that $\mathbb{E}[(x-\mu)^2] = \mathbb{E}[x^2]-E[x]E[x]$ by:
+
+\begin{eqnarray*}
+\mathbb{E}[(x-\mu)^2] &=& \mathbb{E}[x^2 - 2x \mu + \mu^2 ] \\
+    &=& \mathbb{E}[x^2] - \mathbb{E}[2x \mu] + \mathbb{E}[\mu^2] \\
+    &=& \mathbb{E}[x^2] - 2\mathbb{E}[x \mu] + \mathbb{E}[x]\mathbb{E}[x] \\
+    &=& \mathbb{E}[x^2] - 2\mathbb{E}[x]\mathbb{E}[x] + \mathbb{E}[x]\mathbb{E}[x] \\
+\mathbb{E}[(x-\mu)^2] &=& \mathbb{E}[x^2]-E[x]E[x] \\
+\end{eqnarray*}
