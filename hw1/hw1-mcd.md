@@ -8,6 +8,15 @@ Fall 2014
 
 todo
 
+\begin{eqnarray*}
+X &\sim& Unif(0,1) \\
+m &=& \mathbb{E}(X) = 0.5 \\
+\mathbb{E}(|X-m|) &=& \mathbb{E}(|X-0.5|) \\
+&=& -E(X_{x \leq 0.5}-0.5) + E(X_{x > 0.5}-0.5) \\
+&=& -(-0.25) + 0.25 \\
+&=& 0.5
+\end{eqnarray*}
+
 ### Problem 2
 
 By Bayes' Theorem, we can compute the posterior probability that coin 2 was chosen by:
@@ -53,3 +62,7 @@ The expected value of the sum of two rolls is:
             &=& \frac{28}{3} \\
             &\approx& 9.34
 \end{eqnarray*}
+
+### Problem 5
+
+todo: problem 2.10
