@@ -6,6 +6,8 @@ Fall 2014
 
 ### Problem 1
 
+todo
+
 ### Problem 2
 
 By Bayes' Theorem, we can compute the posterior probability that coin 2 was chosen by:
@@ -16,4 +18,38 @@ P(c=2 | h=1) &=& {P(h=1 | c=2) P(c=2) \over P(h=1)} \\
 &=& {0.8 \times 0.5} \over {0.8 \times 0.5 + 0.5 \times 0.5} \\
 &=& 0.4 \over 0.65 \\
 &\approx& 0.615
+\end{eqnarray*}
+
+### Problem 3
+
+Given Equation 2.3 and the fact that $x$ and $y$ are independent, we can show that $Pr(x|y=y^*)=Pr(x)$ by:
+
+\begin{eqnarray*}
+Pr(x|y=y^*) &=& {Pr(x,y=y^*) \over \int Pr(x,y=y^**dx)} \\
+&=& {Pr(x,y=y^*) \over Pr(y=y^*)} \\
+&=& {Pr(x) \cdot Pr(y=y^*) } \over Pr(y=y^*) \\
+&=& Pr(x)
+\end{eqnarray*}
+
+### Problem 4
+
+The expected value of one roll of this biased die, $x$, is:
+
+\begin{eqnarray*}
+\mathbb{E}(x) &=& 1 \cdot \frac{1}{12} + 2 \cdot \frac{1}{12} 
+                + 3 \cdot \frac{1}{12} + 4 \cdot \frac{1}{12} 
+                + 5 \cdot \frac{1}{6} + 6 \cdot \frac{1}{12} \\
+            &=& \frac{10}{12} + \frac{5}{6} + \frac{6}{2} \\
+            &=& \frac{56}{12} \\
+            &=& \frac{14}{3} \\
+            &\approx& 4.67
+\end{eqnarray*}
+
+The expected value of the sum of two rolls is:
+
+\begin{eqnarray*}
+\mathbb{E}(2x) &=& 2 \mathbb{E}(x) \\
+            &=& 2 (\frac{14}{3}) \\
+            &=& \frac{28}{3} \\
+            &\approx& 9.34
 \end{eqnarray*}
