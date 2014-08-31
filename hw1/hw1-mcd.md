@@ -32,7 +32,7 @@ P(c=2 | h=1) &=& {P(h=1 | c=2) P(c=2) \over P(h=1)} \\
 Given Equation 2.3 and the fact that $x$ and $y$ are independent, we can show that $Pr(x|y=y^*)=Pr(x)$ by:
 
 \begin{eqnarray*}
-Pr(x|y=y^*) &=& {Pr(x,y=y^*) \over \int Pr(x,y=y^**dx)} \\
+Pr(x|y=y^*) &=& {Pr(x,y=y^*) \over \int Pr(x,y=y^* dx)} \\
 &=& {Pr(x,y=y^*) \over Pr(y=y^*)} \\
 &=& {Pr(x) \cdot Pr(y=y^*) } \over Pr(y=y^*) \\
 &=& Pr(x)
@@ -72,3 +72,79 @@ Using the relations given in Exercise 2.9, we can show that $\mathbb{E}[(x-\mu)^
     &=& \mathbb{E}[x^2] - 2\mathbb{E}[x]\mathbb{E}[x] + \mathbb{E}[x]\mathbb{E}[x] \\
 \mathbb{E}[(x-\mu)^2] &=& \mathbb{E}[x^2]-E[x]E[x] \\
 \end{eqnarray*}
+
+### Problem 6
+
+#### (a)
+
+**isProbability.m**:
+
+```
+% indicate whether a given matrix P is a valid probability distribution
+function valid = isProbability(P)
+  if ~ismatrix(P)
+      error('Input must be a matrix')
+  end
+  nonnegative = all(all(P >= 0));
+  total = sum(sum(P, 1));
+  normalized = (abs(total - 1) <= 0.0001);
+  valid = nonnegative & normalized;
+end
+```
+
+#### (b)
+
+```
+% check validity of some matrices
+>> isProbability([0 1; 1 0])
+
+ans =
+
+     0
+
+>> isProbability([0 -0.2; 0.7 0.5])
+
+ans =
+
+     0
+
+>> isProbability([1 2 1; 3 0 1] / 8)
+
+ans =
+
+     1
+
+```
+
+#### (c)
+
+**marginals.m**:
+
+```
+% compute marginal distributions from a joint probability distribution
+function [Px, Py] = marginals(P)
+  if ~isProbability(P)
+      error('Input must be a valid probability matrix')
+  end
+  Px = sum(P, 2);
+  Py = sum(P, 1);
+end
+```
+
+#### (d)
+
+```
+>> P = [0 1 2 1; 0 9 0 3] / 16;
+>> [Px, Py] = marginals(P)
+
+Px =
+
+    0.2500
+    0.7500
+
+
+Py =
+
+         0    0.6250    0.1250    0.2500
+```
+
