@@ -148,3 +148,96 @@ Py =
          0    0.6250    0.1250    0.2500
 ```
 
+#### (e)
+
+**conditionals.m**:
+
+```
+% compute two conditional probability distributions from a joint
+% probability distribution
+function [Pxgy, Pygx] = conditionals(P)
+  [Px, Py] = marginals(P);
+  Pxgy = conditional(P, Py);
+  Pygx = transpose(conditional(transpose(P), Px)); % will need to transpose P I think
+end
+
+function Pxgy = conditional(Pxy, Py)
+  Pxgy = Pxy; % create matrix of same size as P
+  
+  % iterate over the rows of Pxy
+  [nrows, ncols] = size(Pxy);
+  % for each row, the corresponding row of Pxgy = Pxy[i] / Py
+  for i = 1:nrows;
+    for j = 1:ncols;
+      if Py(j) == 0 % if any columns of y are zero
+        Pxgy(i, j) = 1/nrows; % that col of Pxgy should be uniform
+      else
+        Pxgy(i, j) = Pxy(i, j) / Py(j);
+      end
+    end
+  end
+end
+```
+
+#### (f)
+
+```
+>> [Pxgy, Pygx] = conditionals(P)
+
+Pxgy =
+
+    0.5000    0.3333    0.7500
+    0.5000    0.6667    0.2500
+
+
+Pygx =
+
+         0    0.4000    0.6000
+         0    0.8000    0.2000
+```
+
+#### (g)
+
+**bayes.m**:
+
+todo: check argument validity
+
+```
+function Pygx = bayes(Pxgy, Py)
+  Pygx = Pxgy; % create Pygx with same dimensions as Pxgy
+  
+  [nrow, ncol] = size(Pxgy);
+  for i = 1:nrow;
+    for j = 1:ncol;
+      numer = Pxgy(i, j) * Py(j);
+      denom = Pxgy(i, :) * transpose(Py);
+      if denom == 0
+        Pygx(i, j) = 1 / ncol;
+      else
+        Pygx(i, j) = numer / denom;
+      end
+    end
+  end
+end
+```
+#### (h)
+
+```
+>> bayes(Pxgy, Py)
+
+ans =
+
+         0    0.4000    0.6000
+         0    0.8000    0.2000
+```
+
+#### (i)
+
+```
+>> transpose(bayes(transpose(Pygx), transpose(Px)))
+
+ans =
+
+    0.5000    0.3333    0.7500
+    0.5000    0.6667    0.2500
+```
