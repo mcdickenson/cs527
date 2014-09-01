@@ -241,3 +241,62 @@ ans =
     0.5000    0.3333    0.7500
     0.5000    0.6667    0.2500
 ```
+
+
+### Problem 7
+
+#### (a)
+
+\begin{eqnarray*}
+p(c) &=& 58,299 / 1024^2 \\
+     &=& 58,299 / 1,048,576 \\
+     &\approx& 0.0556 \\
+p(b) &=& 1 - p(c) \\
+     &\approx& 0.9444
+\end{eqnarray*}
+
+
+#### (b)
+
+See Figure 1 below.
+
+![Conditional Probabilities](hw1p7a.png)
+
+#### (c)
+
+```
+pc = 58299 / (1024 ^ 2)
+pb = 1 - pc
+
+Pxgy = transpose([transpose(pxgb); transpose(pxgc)])
+Py = [pb pc];
+Pygx = bayes(Pxgy, Py)
+```
+
+See Figure 2 below.
+
+![Posterior Probabilities](hw1p7c.png)
+
+#### (d)
+
+For any given value of $x$, the only possibilities are $y=c$ or $y=b$, so $p(c|x)+p(b|x)=1 \forall x$.
+
+#### (e)
+
+The most natural value of $\tau$ in this scenario is $p(c|x) > 0.5$. With $\tau=0.5$, we are classifying pixels as cells if there is a greater than 0.5 probability that they are cells. Since there are only two possibilities in this case (cell or background), this means pixels that are more likely to be cells than background are classified as cells.
+
+#### (f)
+
+See Figure 3 below.
+
+![Bayes Classifier Results](hw1p7f.png)
+
+
+#### (g)
+
+Comment on your result, which are inevitably far from perfect. In particular, what does the classifier flag as “cells”? Is this
+satisfactory? Is it a good start? Are there ways to get much better results based on individual pixel values alone? Why or why not?
+
+#### (h)
+
+In what way is the Bayes classifier more expressive than the classifier based on a single threshold on pixel value x? Another way to ask this question is as follows: Describe the types of subsets of X = {0, . . . , 255} that each classifier can yield in principle, as p(c|x) is suitably changed.
