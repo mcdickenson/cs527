@@ -3,7 +3,7 @@
 function [Pxgy, Pygx] = conditionals(P)
   [Px, Py] = marginals(P);
   Pxgy = conditional(P, Py);
-  Pygx = transpose(conditional(transpose(P), transpose(Px))); % will need to transpose P I think
+  Pygx = transpose(conditional(transpose(P), transpose(Px)));
 end
 
 function Pxgy = conditional(Pxy, Py)

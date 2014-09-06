@@ -34,7 +34,7 @@ P(c=2 | h=1) &=& {P(h=1 | c=2) P(c=2) \over P(h=1)} \\
 Given Equation 2.3 and the fact that $x$ and $y$ are independent, we can show that $Pr(x|y=y^*)=Pr(x)$ by:
 
 \begin{eqnarray*}
-Pr(x|y=y^*) &=& {Pr(x,y=y^*) \over \int Pr(x,y=y^* dx)} \\
+Pr(x|y=y^*) &=& {Pr(x,y=y^*) \over \int Pr(x,y=y^*) dx} \\
 &=& {Pr(x,y=y^*) \over Pr(y=y^*)} \\
 &=& {Pr(x) \cdot Pr(y=y^*) } \over Pr(y=y^*) \\
 &=& Pr(x)
@@ -160,7 +160,7 @@ Py =
 function [Pxgy, Pygx] = conditionals(P)
   [Px, Py] = marginals(P);
   Pxgy = conditional(P, Py);
-  Pygx = transpose(conditional(transpose(P), transpose(Px))); % will need to transpose P I think
+  Pygx = transpose(conditional(transpose(P), transpose(Px)));
 end
 
 function Pxgy = conditional(Pxy, Py)
@@ -283,7 +283,7 @@ See Figure 3 below.
 
 #### (g)
 
-The classifier identifies dark pixels as "cells." In particular, it identifies cell walls pretty well. However, it also misclassifies some other dark spots that appear to be blemishes on the image (such as in the bottom-left quadrant of the yeast image). This is a good start, but it is not completely satisfactory. It would be difficult to get substantially better results based on pixel values alone. Edge detection would likely be a helpful addition for this problem, since all pixels within the edges of a cell should also be classified as belonging to the cell. 
+The classifier identifies dark pixels in the yeast image as "cells." In particular, it identifies cell walls pretty well. However, it also misclassifies some other dark spots that appear to be blemishes on the image (such as in the bottom-left quadrant of the yeast image). This is a good start, but it is not completely satisfactory. It would be difficult to get substantially better results based on pixel values alone. Edge detection would likely be a helpful addition for this problem, since all pixels within the edges of a cell should also be classified as belonging to the cell. 
 
 
 #### (h)
