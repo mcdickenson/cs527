@@ -285,6 +285,8 @@ For any given value of $x$, the only possibilities are $y=c$ or $y=b$, so $p(c|x
 
 The most natural value of $\tau$ in this scenario is $p(c|x) > 0.5$. With $\tau=0.5$, we are classifying pixels as cells if there is a greater than 0.5 probability that they are cells. Since there are only two possibilities in this case (cell or background), this means pixels that are more likely to be cells than background are classified as cells.
 
+todo: since the population value is known, set it at the value such that the number of pixels classified as cells == p(c)
+
 #### (f)
 
 See Figure 3 below.
