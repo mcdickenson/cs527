@@ -6,6 +6,8 @@ Fall 2014
 
 ### Problem 1
 
+We can find $\mathbb{E}(|X-m|)$ by:
+
 \begin{eqnarray*}
 X &\sim& Unif(0,1) \\
 m &=& \mathbb{E}(X) = 0.5 \\
@@ -158,24 +160,13 @@ Py =
 function [Pxgy, Pygx] = conditionals(P)
   [Px, Py] = marginals(P);
   Pxgy = conditional(P, Py);
-  Pygx = transpose(conditional(transpose(P), Px)); % will need to transpose P I think
+  Pygx = transpose(conditional(transpose(P), transpose(Px))); % will need to transpose P I think
 end
 
 function Pxgy = conditional(Pxy, Py)
-  Pxgy = Pxy; % create matrix of same size as P
-  
-  % iterate over the rows of Pxy
   [nrows, ncols] = size(Pxy);
-  % for each row, the corresponding row of Pxgy = Pxy[i] / Py
-  for i = 1:nrows;
-    for j = 1:ncols;
-      if Py(j) == 0 % if any columns of y are zero
-        Pxgy(i, j) = 1/nrows; % that col of Pxgy should be uniform
-      else
-        Pxgy(i, j) = Pxy(i, j) / Py(j);
-      end
-    end
-  end
+  Pxgy = Pxy ./ (ones(nrows, 1) * Py);
+  Pxgy(isnan(Pxgy)) = 1/nrows; % replace NAs (from dividing by zero)
 end
 ```
 
@@ -200,24 +191,20 @@ Pygx =
 
 **bayes.m**:
 
-todo: check argument validity
-
 ```
 function Pygx = bayes(Pxgy, Py)
-  Pygx = Pxgy; % create Pygx with same dimensions as Pxgy
+  [nrow, ncol] = size(Pxgy)
   
-  [nrow, ncol] = size(Pxgy);
-  for i = 1:nrow;
-    for j = 1:ncol;
-      numer = Pxgy(i, j) * Py(j);
-      denom = Pxgy(i, :) * transpose(Py);
-      if denom == 0
-        Pygx(i, j) = 1 / ncol;
-      else
-        Pygx(i, j) = numer / denom;
-      end
-    end
+  % check validity
+  if ~(isProbability(Py) & isProbability(Pxgy/ncol))
+      error('Input must be a valid probability matrix')
   end
+  
+  numer = Pxgy * diag(Py)
+  denom = Pxgy * transpose(Py)
+  Pygx = numer ./ (denom * ones(1, ncol))
+    
+  Pygx(isnan(Pygx)) = 1/ncol; % replace NaNs from divide-by-zero
 end
 ```
 #### (h)
@@ -296,9 +283,10 @@ See Figure 3 below.
 
 #### (g)
 
-Comment on your result, which are inevitably far from perfect. In particular, what does the classifier flag as “cells”? Is this
-satisfactory? Is it a good start? Are there ways to get much better results based on individual pixel values alone? Why or why not?
+The classifier identifies dark pixels as "cells." In particular, it identifies cell walls pretty well. However, it also misclassifies some other dark spots that appear to be blemishes on the image (such as in the bottom-left quadrant of the yeast image). This is a good start, but it is not completely satisfactory. It would be difficult to get substantially better results based on pixel values alone. Edge detection would likely be a helpful addition for this problem, since all pixels within the edges of a cell should also be classified as belonging to the cell. 
+
 
 #### (h)
 
-In what way is the Bayes classifier more expressive than the classifier based on a single threshold on pixel value x? Another way to ask this question is as follows: Describe the types of subsets of X = {0, . . . , 255} that each classifier can yield in principle, as p(c|x) is suitably changed.
+The Bayes classifier has the advantage of relying on the probability that a pixel belongs to the cell (or background) rather than relying on a single threshold. For $X = {0, . . . , 255}$, a single threshold can deal with 257 possible subsets (the empty set and any cut-off from 0 to 255). A probabilistic classifier relying on a probability threshold $p(c|x)$, on the other hand, has $2^{256}$ possible subsets. By having exponentially more flexibility, the Bayes classifier can deal with more complex classification problems. 
+
