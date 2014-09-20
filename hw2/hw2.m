@@ -62,3 +62,31 @@ contour(x, y, ppygx, 20, 'Color', 'k')
 xlabel('x')
 ylabel('y')
 title('Conditional Distribution p(y|x) When Independent')
+
+
+
+% Problem 2
+
+% make sure working directory is properly set to /hw2/code
+[train, test] = readMNISTDatabase('../data');
+
+% a
+cimg = code(train.image);
+
+% b
+[~, k] = unique(train.label);
+rimg = code(cimg, size(train.image));
+
+for i = 1:10
+  subplot(10,2,(i*2-1))
+  img = train.image(:, :, k(i))
+  image(uint8(255) - img)
+  colormap('gray')
+  subplot(10,2,(i*2))
+  img = rimg(:, :, k(i));
+  image(uint8(255) - img)
+  colormap('gray')
+end
+
+subplot(1, 2, 1)
+plot

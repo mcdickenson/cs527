@@ -128,3 +128,13 @@ In general, computing a $d$-dimensional integral using Fubini's theorem and the 
 Since the complexity is exponential, using Fubini's theorem and the trapezoidal rule to compute high-dimensional integrals is very time consuming. 
 
 ### Problem 2
+
+#### (a)
+
+The vectors in `cimg` are 12.25 ($28^2 \over 64$) times shorter than the original images strung into vectors.
+
+#### (b)
+
+A pair of images (original on the left, reconstructed on the right) is shown for each digit below.
+
+![Original and Reconstructed Digist](hw2p2b.png)
