@@ -90,3 +90,6 @@ end
 
 subplot(1, 2, 1)
 plot
+
+% c
+[like, pri] = normalModel(cimg, train.label)
