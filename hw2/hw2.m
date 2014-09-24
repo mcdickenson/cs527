@@ -88,8 +88,31 @@ for i = 1:10
   colormap('gray')
 end
 
-subplot(1, 2, 1)
-plot
 
 % c
 [like, pri] = normalModel(cimg, train.label)
+
+% d
+[sample, slabel] = drawRandom(like, pri, [28 28 64])
+for i = 1:64
+  subplot(8, 8, i);
+  img = sample(:, :, i);
+  image(uint8(255) - img);
+  text(5, 5, num2str(slabel(1, i)), 'FontSize', 20);
+  colormap('gray');
+end
+
+% e
+[v, delta] = normalValue(cimg, like.M(:, 1), like.S(:, 1))
+
+% f
+D = distances(like)
+roundn(D, -2)
+GTHTMLtable(roundn(D, -2))
+
+% g
+computedLabel = classify(test.image, like, pri)
+
+% h
+[E, errorRate, pCgT] = errorStats(computedLabel, test.label)
+
