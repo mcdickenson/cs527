@@ -13,52 +13,34 @@ Fall 2014
 
 ```
 function i = integrate(p, dx, dy)
-  % Leaving both dx and dy unspecified should cause an error.
   if nargin < 2
     error('dx and/or dy must be specified')
   end
   
-
   if isvector(p)
-    % approximate over p by dx
     if (nargin == 3 && ~isempty(dy))
       error('dy is specified but p is one-dimensional')
     end
-    m = size(p);
-    a = p(1);
-    b = p(end);
-    total = (a + b) + sum(p(2:end-1));
-    i = dx * total;
+    total = p(1) + p(end) + sum(p(2:end-1))*2;
+    i = dx/2 * total;
     return
-  else
-    
   end
   
-  % produces a column vector
   if ~isvector(p) && (nargin == 2 || isempty(dy))
-    % todo: don't use an explicit loop
-    [nrows, ncols] = size(p)
-    cols = zeros(nrows, 1)
-    for row=1:nrows
-      cols(row, 1) = integrate(p(row, :), dx);
-    end
-%     cols = integrate(p(, :), repmat(dx, nrows, 1))
-    i = cols
-    return
+    total = p(: , 1) + p(:, end) + sum(p(:, 1:end), 2)*2;
+    i = dx/2 * total;
+    return % returns a column vector
   end
   
-  % returns a row vector
   if isempty(dx) && ~isempty(dy)
-    i = transpose(integrate(transpose(p), dy))
-    return
+    i = transpose(integrate(transpose(p), dy));
+    return % returns a row vector
   end
   
-  % returns a scalar
-  if nargin==3 % && size(size(p))==3
+  if nargin==3 
     % use Fubini's thm
-    
-    i = integrate( integrate(p, dx),  dy)
-    return
+    i = integrate( integrate(p, dx),  dy);
+    return % returns a scalar
   end
 
 end
@@ -71,7 +53,7 @@ The marginal distribution $p(x)$, computed both analytically and numerically, is
 
 #### (b)
 
-The root-mean-square discrepancy between the numerical and the analytical calcuations is 0.0078.
+The root-mean-square discrepancy between the numerical and the analytical calcuations is 0.0155.
 
 
 #### (c)
@@ -206,6 +188,145 @@ function m = mahal(mu1, mu2, s2)
   m = sqrt( sum(( (mu1-mu2).^2 ) / s2 ));
 end
 ```
+
+The values for D are appended at the end of this submission.
+
+#### (g)
+
+**classify.m**
+
+```
+function label = classify(img, likelihood, prior)
+  compressed = code(img);
+  n = size(compressed, 2);
+  d = size(likelihood.M, 2);
+  post = zeros(d, n);
+  for i=1:d
+    [v, delta] = normalValue(compressed, likelihood.M(:, i), likelihood.S(:, i));
+    post(i, :) = v * prior(i);
+  end
+  label = zeros(1, n);
+  for j=1:n
+    col = post(:, j);
+    argmax = find( col == max(col));
+    label(j) = argmax-1;
+  end
+end
+```
+
+#### (h)
+
+**errorStats.m**
+
+```
+function [E, errorRate, pCgT] = errorStats(computedLabel, trueLabel)
+  labels = unique(computedLabel);
+  n = size(computedLabel, 2);
+  l = size(labels, 2);
+  E = zeros(l, l);
+  pCgT = zeros(l, l);
+  for i=1:l
+    for j=1:l
+      E(i, j) = sum( (trueLabel == i-1) & (computedLabel == j-1) );
+      pCgT(i, j) = sum((computedLabel==i-1) & (trueLabel==j-1))/sum(trueLabel==j-1);
+    end
+  end
+  errorRate = 1 - (sum(diag(E))/n);
+end
+```
+
+**Output:**
+
+The error rate is 12.3\%.
+
+```
+E =
+
+  Columns 1 through 7
+
+         928           0           9           3           1          21          12
+           0        1074          13           9           1          11           6
+          19           1         884          32          13           6          11
+           4           1          19         877           2          50           3
+           1           2          19           0         851          10          14
+           4           1          11          67           8         743          12
+          13           3          14           3          12          40         870
+           3          22          40           2          17          15           5
+           5           0          16          34           9          43           2
+          13           2          28           9          69          13           1
+
+  Columns 8 through 10
+
+           2           3           1
+           1          20           0
+          16          46           4
+          15          27          12
+           3           7          75
+           9          33           4
+           0           2           1
+         859          16          49
+           8         845          12
+          23          10         841
+
+errorRate =
+
+    0.1228
+
+pCgT = 
+
+  Columns 1 through 8
+
+    0.947        0    0.018    0.004    0.001    0.004    0.014    0.003
+    0        0.946    0.001    0.001    0.002    0.001    0.003    0.021
+    0.009    0.011    0.857    0.019    0.019    0.012    0.015    0.039
+    0.003    0.008    0.031    0.868        0    0.075    0.003    0.002
+    0.001    0.001    0.013    0.002    0.867    0.009    0.013    0.017
+    0.021    0.010    0.006    0.050    0.010    0.833    0.042    0.015
+    0.012    0.005    0.011    0.003    0.014    0.013    0.908    0.005
+    0.002    0.001    0.016    0.015    0.003    0.010        0    0.836
+    0.003    0.018    0.045    0.027    0.007    0.037    0.002    0.016
+    0.001        0    0.004    0.012    0.076    0.004    0.001    0.048
+
+  Columns 9 through 10
+
+    0.005    0.013
+        0    0.002
+    0.016    0.028
+    0.035    0.009
+    0.009    0.068
+    0.044    0.013
+    0.002    0.001
+    0.008    0.023
+    0.868    0.010
+    0.012    0.833
+```
+
+#### (i)
+
+Given the instructions, column `j` in `pCgT` indicates values where the true digit was `j-1`. Thus, each column of `pCgT` should sum to one, as they do.
+
+#### (j)
+
+If the classifier's error rate is $p$ and errors on different digits are independent, the probability that the classifier gets a five-digit zip code wrong is $p_Z = 1 - (1 - p^5)$. For my error rate, $p=0.123$, $p_Z = 1 - (1-0.123)^5 = 0.481$. For the best available rate today, $p=0.002$, $p_Z = 1 - (1 - 0.002)^5 \approx 0.001$.
+
+#### (k)
+
+If the state-of-the-art digit classifier were used, approximately 3,984,032 zip codes would be misclassified in the US each day.
+
+#### (l)
+
+The posterior $p(\hat{w}|x)$ can take on values between 0.1 and 1. Because $\hat{w}$ is the argmax of a variable with 10 possible values, it must be at least 0.1. Because it is a probability, its upper bound is 1.
+
+#### (m)
+
+An automatic zip code scanner could use the posterior value to determine whether there is sufficient confidence int he automated classification, or if the zip code needs further review (eg by a human). Some threshold, such as $\prod_{i=1}^5 p(\hat{w}_i|x_i) < 0.9$, could be chosen so that misclassifications by the automated system are kept to a minimum while still saving the time of human reviewers. 
+
+#### (n)
+
+The assumption that errors on adjacent digits are mutually independent is not valid. First, all five digits in a handwritten zip code are typically generated by the same human hand. If a person has bad handwriting (1's that can easily be mistaken for 7's, for example), then errors will be correlated across digits they write. Secondly, it's possible that one digit will overlap or be smeared with a subsequent digit, making them both difficult to classify.
+
+
+\clearpage
 
 ```
 D = 
@@ -745,137 +866,3 @@ D =
     0.43    0.59    0.36    0.35    0.47    0.35       0    0.37
     0.36    0.46    0.26    0.28    0.30    0.28    0.36       0
 ```
-
-#### (g)
-
-**classify.m**
-
-```
-function label = classify(img, likelihood, prior)
-  compressed = code(img);
-  n = size(compressed, 2);
-  d = size(likelihood.M, 2);
-  post = zeros(d, n);
-  for i=1:d
-    [v, delta] = normalValue(compressed, likelihood.M(:, i), likelihood.S(:, i));
-    post(i, :) = v * prior(i);
-  end
-  label = zeros(1, n);
-  for j=1:n
-    col = post(:, j);
-    argmax = find( col == max(col));
-    label(j) = argmax-1;
-  end
-end
-```
-
-#### (h)
-
-**errorStats.m**
-
-```
-function [E, errorRate, pCgT] = errorStats(computedLabel, trueLabel)
-  labels = unique(computedLabel);
-  n = size(computedLabel, 2);
-  l = size(labels, 2);
-  E = zeros(l, l);
-  pCgT = zeros(l, l);
-  for i=1:l
-    for j=1:l
-      E(i, j) = sum( (trueLabel == i-1) & (computedLabel == j-1) );
-      pCgT(i, j) = sum((computedLabel==i-1) & (trueLabel==j-1))/sum(trueLabel==j-1);
-    end
-  end
-  errorRate = 1 - (sum(diag(E))/n);
-end
-```
-
-**Output:**
-
-The error rate is 12.3\%.
-
-```
-E =
-
-  Columns 1 through 7
-
-         928           0           9           3           1          21          12
-           0        1074          13           9           1          11           6
-          19           1         884          32          13           6          11
-           4           1          19         877           2          50           3
-           1           2          19           0         851          10          14
-           4           1          11          67           8         743          12
-          13           3          14           3          12          40         870
-           3          22          40           2          17          15           5
-           5           0          16          34           9          43           2
-          13           2          28           9          69          13           1
-
-  Columns 8 through 10
-
-           2           3           1
-           1          20           0
-          16          46           4
-          15          27          12
-           3           7          75
-           9          33           4
-           0           2           1
-         859          16          49
-           8         845          12
-          23          10         841
-
-errorRate =
-
-    0.1228
-
-pCgT = 
-
-  Columns 1 through 8
-
-    0.947        0    0.018    0.004    0.001    0.004    0.014    0.003
-    0        0.946    0.001    0.001    0.002    0.001    0.003    0.021
-    0.009    0.011    0.857    0.019    0.019    0.012    0.015    0.039
-    0.003    0.008    0.031    0.868        0    0.075    0.003    0.002
-    0.001    0.001    0.013    0.002    0.867    0.009    0.013    0.017
-    0.021    0.010    0.006    0.050    0.010    0.833    0.042    0.015
-    0.012    0.005    0.011    0.003    0.014    0.013    0.908    0.005
-    0.002    0.001    0.016    0.015    0.003    0.010        0    0.836
-    0.003    0.018    0.045    0.027    0.007    0.037    0.002    0.016
-    0.001        0    0.004    0.012    0.076    0.004    0.001    0.048
-
-  Columns 9 through 10
-
-    0.005    0.013
-        0    0.002
-    0.016    0.028
-    0.035    0.009
-    0.009    0.068
-    0.044    0.013
-    0.002    0.001
-    0.008    0.023
-    0.868    0.010
-    0.012    0.833
-```
-
-#### (i)
-
-Given the instructions, column `j` in `pCgT` indicates values where the true digit was `j-1`. Thus, each column of `pCgT` should sum to one, as they do.
-
-#### (j)
-
-If the classifier's error rate is $p$ and errors on different digits are independent, the probability that the classifier gets a five-digit zip code wrong is $p_Z = 1 - (1 - p^5)$. For my error rate, $p=0.123$, $p_Z = 1 - (1-0.123)^5 = 0.481$. For the best available rate today, $p=0.002$, $p_Z = 1 - (1 - 0.002)^5 \approx 0.001$.
-
-#### (k)
-
-If the state-of-the-art digit classifier were used, approximately 3,984,032 zip codes would be misclassified in the US each day.
-
-#### (l)
-
-The posterior $p(\hat{w}|x)$ can take on values between 0.1 and 1. Because $\hat{w}$ is the argmax of a variable with 10 possible values, it must be at least 0.1. Because it is a probability, its upper bound is 1.
-
-#### (m)
-
-An automatic zip code scanner could use the posterior value to determine whether there is sufficient confidence int he automated classification, or if the zip code needs further review (eg by a human). Some threshold, such as $\prod_{i=1}^5 p(\hat{w}_i|x_i) < 0.9$, could be chosen so that misclassifications by the automated system are kept to a minimum while still saving the time of human reviewers. 
-
-#### (n)
-
-The assumption that errors on adjacent digits are mutually independent is not valid. First, all five digits in a handwritten zip code are typically generated by the same human hand. If a person has bad handwriting (1's that can easily be mistaken for 7's, for example), then errors will be correlated across digits they write. Secondly, it's possible that one digit will overlap or be smeared with a subsequent digit, making them both difficult to classify.
