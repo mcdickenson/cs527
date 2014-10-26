@@ -22,3 +22,10 @@ Z  = transpose([
 m = transpose([0 0; 0 0; 0 0; 0 0])
 [M, R] = kmeans(Z, m)
 showClusters(Z, M, R, m, 1, 'customKmeans')
+
+
+
+
+% 2a
+[lambda, M, Sigma, R] = EM(blobs, M0, ones(1, 3));
+showMixture(blobs, lambda, M, Sigma, R, M0, 1, 'blobsEM')

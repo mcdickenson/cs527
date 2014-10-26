@@ -6,10 +6,8 @@ function [M, R] = kmeans(Z, M)
   % initialize f(S) values for iteration
   f_p = intmax;
   f_c = f_p - 1;
-  iters = 0
     
   while f_p > f_c + sqrt(eps)
-    iters = iters + 1
     R = closest_cluster(Z, M);
     M = (Z * transpose(R)) ./ (transpose(sum(R, 2) * ones(1, 2)));
     f_p = f_c;
