@@ -1,3 +1,4 @@
 computer-vision-book.pdf
 getstartmathlab.pdf
 lectures/*.pdf
+*.m~
