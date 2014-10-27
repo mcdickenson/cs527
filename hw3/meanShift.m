@@ -1,14 +1,18 @@
 function [z, zh] = meanShift(zstart, Z, h)
-  I = size(Z, 2)
-  zh = zstart
-  z = zh * 100
-  while mynorm(z-zh) > sqrt(eps)
-    z = zh
-    denom = 0
+  [d, I] = size(Z)
+  z_prime = zstart
+  zh = z_prime
+  terminate = false
+  while ~terminate
+    
+    z = z_prime
+    numer = zeros(d, I);
     for i=1:I
-      denom = denom + kernel(z-Z(:, i), h)
+      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
     end
-    zh = sum(z .* denom) / sum(denom)
+    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2)
+    zh = [zh'; z_prime']';
+    terminate = mynorm(z-z_prime) <= h/1000
   end
 end
 
@@ -17,6 +21,6 @@ function [d] = mynorm(x)
 end
 
 function [k] = kernel(x, h)
-  k = exp(-(mynorm(x)/h)^2)
+  k = exp(-((mynorm(x)/h)^2))
 end
 
