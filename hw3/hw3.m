@@ -44,3 +44,11 @@ showMixture(blobs, lambda, M, Sigma, R, M04, 1, 'blobsEMk4')
 % 2e
 [lambda, M, Sigma, R] = EM(bananas, M0(:, 1:2), ones(1, 2));
 showMixture(bananas, lambda, M, Sigma, R, M0(:, 1:2), 1, 'bananasEM')
+
+
+
+% 3a
+zstart = [0 1.5]';
+[z1, zh1] = meanShift(zstart, blobs, 0.2);
+[z2, zh2] = meanShift(zstart, blobs, 2);
+showPaths({zh1, zh2}, blobs, 'paths')
