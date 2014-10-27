@@ -1,14 +1,14 @@
 function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
-  [d, I] = size(Z)
-  K = size(M, 2)
+  [d, I] = size(Z);
+  K = size(M, 2);
   
   % Initialize uninformative prior
-  lambda = repmat(1/K, K, 1)
-  Sigma = zeros(d, d, K)
+  lambda = repmat(1/K, K, 1);
+  Sigma = zeros(d, d, K);
   for k=1:K
-    Sigma(:, :, k) = sigma2(k)*eye(d)
+    Sigma(:, :, k) = sigma2(k)*eye(d);
   end
-  R = zeros(K, I)
+  R = zeros(K, I);
   
   % initialize f(theta) values for iteration
   f_p = intmax;
@@ -17,7 +17,7 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
   while f_p > f_c + sqrt(eps)
     % E-step
     for k=1:K
-      R(k, :) = lambda(k) * mvnpdf(Z', M(:, k)', Sigma(:, :, k))
+      R(k, :) = lambda(k) * mvnpdf(Z', M(:, k)', Sigma(:, :, k));
     end
     R = R ./ (ones(K, 1) * sum(R));
     
