@@ -17,7 +17,9 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
   while f_p > f_c + sqrt(eps)
     % E-step
     for k=1:K
-      R(k, :) = lambda(k) * mvnpdf(Z', M(:, k)', Sigma(:, :, k));
+      for i=1:I
+        R(k, i) = lambda(k) * mymvn(Z(:, i), M(:, k), Sigma(:, :, k));
+      end
     end
     R = R ./ (ones(K, 1) * sum(R));
     
@@ -33,4 +35,14 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
     f_p = f_c;
     f_c = -sum(log(sum(R, 2)));
   end
+end
+
+function [p] = mymvn(x, mu, sigma) % todo: make this work with full matrices
+  d = size(x, 1);
+  if size(sigma) ~= [d, d]
+    error('Sigma must be of dimension dxd')
+  end
+  normalization = 1/sqrt((2*pi)^d * det(sigma));
+  exponent = (x-mu)' * inv(sigma) * (x-mu);
+  p = normalization * exp(-0.5*exponent);
 end
