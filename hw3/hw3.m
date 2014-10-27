@@ -51,4 +51,9 @@ showMixture(bananas, lambda, M, Sigma, R, M0(:, 1:2), 1, 'bananasEM')
 zstart = [0 1.5]';
 [z1, zh1] = meanShift(zstart, blobs, 0.2);
 [z2, zh2] = meanShift(zstart, blobs, 2);
-showPaths({zh1, zh2}, blobs, 'paths')
+showPaths({zh1, zh2}, blobs, 1, 'paths')
+
+[z2, zh2] = meanShift(zstart, blobs, 2);
+[z3, zh3] = meanShift(zstart, blobs, 3);
+[z4, zh4] = meanShift(zstart, blobs, 4);
+showPaths({zh2, zh3, zh4}, blobs, 1, 'paths3')

@@ -311,4 +311,46 @@ The result in 2(d) is unsatisfactory for two reasons. First, points at the top t
 
 Second, the ellipses defined by the mean and variance of each cluster exclude a number of points belonging to the cluster. This is a result of the E-M algorithm: this data could likely be well-described if $k=6$, but it's difficult to know this a priori and $k$ is fixed in this E-M implementation.
 
+### Problem 3
+
+#### (a)
+
+**meanShift.m**:
+
+```
+function [z, zh] = meanShift(zstart, Z, h)
+  [d, I] = size(Z);
+  z_prime = zstart;
+  zh = z_prime;
+  terminate = false;
+  while ~terminate
+    z = z_prime;
+    numer = zeros(d, I);
+    for i=1:I
+      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
+    end
+    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2);
+    zh = [zh'; z_prime']';
+    terminate = mynorm(z-z_prime) <= h/1000;
+  end
+end
+
+function [d] = mynorm(x)
+  d = sqrt(sum(x.^2));
+end
+
+function [k] = kernel(x, h)
+  k = exp(-((mynorm(x)/h)^2));
+end
+```
+
+Running this code as instructed produced the following plot:
+
+![Result of Mean-Shift with blobs data](paths.pdf)
+
+The first run with $h=0.2$ took 37 iterations and the second run with $h=2$ took 14 iterations.
+
+#### (b)
+
+With $h=2$ we have a larger neighborhood size, so instead of finding a local mode we find the global mode for the data given. Increasing $h$ further results in approximately the same final point.
 
