@@ -354,3 +354,89 @@ The first run with $h=0.2$ took 37 iterations and the second run with $h=2$ took
 
 With $h=2$ we have a larger neighborhood size, so instead of finding a local mode we find the global mode for the data given. Increasing $h$ further results in approximately the same final point.
 
+
+#### Problem 4
+
+### (a)
+
+My implementation of the mean-shift clustering algorithm, with an improvement to speed up mean-shift, is shown below with the functions `kernel` and `mynorm` being the same as in 3(a) above.
+
+```
+function [U, R] = meanShiftCluster(Z, h)
+  [d, I] = size(Z)
+
+  M = zeros(d, I);   
+  for i=1:I
+    M(:, i) = meanShiftFaster(Z(:, i), Z, h);
+  end
+
+  U = nearUniqueCols(M, h/100);
+  K = size(U, 2);
+  K
+  R = zeros(K, I);
+  for k=1:K
+    for i=1:I
+      if euclid(M(:, i) - U(:, k)) < h/100
+        R(k, i) = 1;
+      else
+        R(k, i) = 0;
+      end
+    end
+  end
+end
+
+function [z, zh] = meanShiftFaster(zstart, Z, h)
+  idx = rangesearch(zstart', Z', h/100);
+  keep = cellfun(@isempty, idx);
+  Z = Z(:, keep);
+  [d, I] = size(Z);
+  z_prime = zstart;
+  zh = z_prime;
+  terminate = false;
+  while ~terminate
+    z = z_prime;
+    numer = zeros(d, I);
+    for i=1:I
+      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
+    end
+    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2);
+    zh = [zh'; z_prime']';
+    terminate = mynorm(z-z_prime) <= h/1000;
+  end
+end
+
+function [u] = nearUniqueCols(mx, tau)
+  keep = mx(:, 1);
+  for j=2:size(mx, 2)
+    col = mx(:, j);
+    keep = unique(keep, col, tau);
+  end
+  u = keep;
+end
+
+function [u] = unique(mx, x, tau)
+  for l=1:size(mx,2)
+    col = mx( :, l);
+    dist = euclid(col-x);
+    if dist < tau
+      u = mx;
+      return
+    end
+  end
+  u = [mx'; x']';
+end
+
+function [d] = euclid(x)
+  d = sqrt(sum(x.^2));
+end
+```
+
+The running time of my code was about 1312 seconds on a 2-core 2010 Macbook Pro running OS X 10.9. The algorithm found two clusters, shown below.
+
+![Result of Mean-Shift Clustering with bananas data and h=0.8](bananasMS.pdf)
+
+#### (b)
+
+In this example, mean-shift clustering does not appear to do substantially better than EM. Again, the upper-right points of the left banana and the lower-left points of the right banana are misclassified. One advantage of mean-shift clustering over EM is that we did not have to specify the number of clusters a priori. One disadvantage is that the mean-shift clustering results do not indicate uncertainty about classification as the EM results do.
+
+Although we do not have to select $k$ for mean-shift clustering, the selection of $h$ is accompanied by trade-offs. A low bandwidth (small $h$) is likely to find a larger number of clusters centered at local modes. A larger bandwidth (greater $h$) will find fewer clusters, perhaps only one centered at the global mode. Thus, the selection of $h$ presents similar challenges as the selection of $k$ for $K$-means or EM.

@@ -57,3 +57,8 @@ showPaths({zh1, zh2}, blobs, 1, 'paths')
 [z3, zh3] = meanShift(zstart, blobs, 3);
 [z4, zh4] = meanShift(zstart, blobs, 4);
 showPaths({zh2, zh3, zh4}, blobs, 1, 'paths3')
+
+
+% 4a
+[U, R] = meanShiftCluster(bananas, 0.8)
+showClusters(bananas, U, R, [], 1, 'bananasMS')
