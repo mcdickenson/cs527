@@ -1,8 +1,4 @@
 function [M, R] = kmeans(Z, M)
-  % dim(Z) = d x I
-  % dim(M) = d x K
-  % dim(R) = K x I
-  
   % initialize f(S) values for iteration
   f_p = intmax;
   f_c = f_p - 1;
