@@ -37,7 +37,7 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
   end
 end
 
-function [p] = mymvn(x, mu, sigma) % todo: make this work with full matrices
+function [p] = mymvn(x, mu, sigma)
   d = size(x, 1);
   if size(sigma) ~= [d, d]
     error('Sigma must be of dimension dxd')

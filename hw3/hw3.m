@@ -60,5 +60,12 @@ showPaths({zh2, zh3, zh4}, blobs, 1, 'paths3')
 
 
 % 4a
-[U, R] = meanShiftCluster(bananas, 0.8)
-showClusters(bananas, U, R, [], 1, 'bananasMS')
+% f = @() meanShiftCluster(bananas, 0.8);
+% t = timeit(f) % 14.91 seconds
+[U, R] = meanShiftCluster(bananas, 0.8);
+showClusters(bananas, U, R, [], 1, 'bananasMS');
+
+% save('U.mat', 'U')
+% save('R.mat', 'R')
+
+

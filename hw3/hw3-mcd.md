@@ -13,41 +13,38 @@ Fall 2014
 
 ```
 function [M, R] = kmeans(Z, M)
-  % dim(Z) = d x I
-  % dim(M) = d x K
-  % dim(R) = K x I
-  
   % initialize f(S) values for iteration
-  f_p = intmax
-  f_c = f_p - 1
+  f_p = intmax;
+  f_c = f_p - 1;
     
   while f_p > f_c + sqrt(eps)
-    R = closest_cluster(Z, M)
-    M = (Z * transpose(R)) ./ (transpose(sum(R, 2) * ones(1, 2)))
-    f_p = f_c
-    f_c = sum(sum(dists(Z, M) .* R, 1), 2)
+    R = closest_cluster(Z, M);
+    M = (Z * transpose(R)) ./ (transpose(sum(R, 2) * ones(1, 2)));
+    f_p = f_c;
+    f_c = sum(sum(dists(Z, M) .* R, 1), 2);
   end
 end
 
 function [assignments] = closest_cluster(Z, mu)
-  % partition the points in Z by their closes mean
-  K = size(mu, 2)
-  all_dists = dists(Z, mu)
-  min_dists = ones(K, 1) * min(all_dists, [], 1)
-  assignments = all_dists == min_dists
+  % partition the points in Z by their closest mean
+  K = size(mu, 2);
+  all_dists = dists(Z, mu);
+  min_dists = ones(K, 1) * min(all_dists, [], 1);
+  assignments = all_dists == min_dists;
 end
 
 function [all_dists] = dists(Z, mu)
   % compute distance of each point in Z from each centroid
-  K = size(mu, 2)
-  I = size(Z, 2)
-  all_dists = zeros(K, I)
+  K = size(mu, 2);
+  I = size(Z, 2);
+  all_dists = zeros(K, I);
   for k=1:K
-    means = mu(:, k) * ones(1, I)
-    dists = sqrt(sum((Z - means).^2, 1))
-    all_dists( k , :) = dists
+    means = mu(:, k) * ones(1, I);
+    dists = sqrt(sum((Z - means).^2, 1));
+    all_dists( k , :) = dists;
   end
 end
+
 ```
 
 Output:
@@ -137,16 +134,16 @@ The previous answer shows that the success $K$-means algorithm depends upon the 
 
 ```
 function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
-  [d, I] = size(Z)
-  K = size(M, 2)
+  [d, I] = size(Z);
+  K = size(M, 2);
   
   % Initialize uninformative prior
-  lambda = repmat(1/K, K, 1)
-  Sigma = zeros(d, d, K)
+  lambda = repmat(1/K, K, 1);
+  Sigma = zeros(d, d, K);
   for k=1:K
-    Sigma(:, :, k) = sigma2(k)*eye(d)
+    Sigma(:, :, k) = sigma2(k)*eye(d);
   end
-  R = zeros(K, I)
+  R = zeros(K, I);
   
   % initialize f(theta) values for iteration
   f_p = intmax;
@@ -155,7 +152,9 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
   while f_p > f_c + sqrt(eps)
     % E-step
     for k=1:K
-      R(k, :) = lambda(k) * mvnpdf(Z', M(:, k)', Sigma(:, :, k))
+      for i=1:I
+        R(k, i) = lambda(k) * mymvn(Z(:, i), M(:, k), Sigma(:, :, k));
+      end
     end
     R = R ./ (ones(K, 1) * sum(R));
     
@@ -171,6 +170,16 @@ function [lambda, M, Sigma, R] = EM(Z, M, sigma2)
     f_p = f_c;
     f_c = -sum(log(sum(R, 2)));
   end
+end
+
+function [p] = mymvn(x, mu, sigma)
+  d = size(x, 1);
+  if size(sigma) ~= [d, d]
+    error('Sigma must be of dimension dxd')
+  end
+  normalization = 1/sqrt((2*pi)^d * det(sigma));
+  exponent = (x-mu)' * inv(sigma) * (x-mu);
+  p = normalization * exp(-0.5*exponent);
 end
 ```
 
@@ -325,22 +334,13 @@ function [z, zh] = meanShift(zstart, Z, h)
   terminate = false;
   while ~terminate
     z = z_prime;
-    numer = zeros(d, I);
-    for i=1:I
-      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
-    end
-    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2);
+    diff = z * ones(1, I) - Z;
+    norms = sqrt(sum(diff .^ 2, 1));
+    kernel = exp(-((norms/h).^2)) ;
+    z_prime = (Z * kernel') ./ sum(kernel, 2);
     zh = [zh'; z_prime']';
-    terminate = mynorm(z-z_prime) <= h/1000;
+    terminate = sqrt(sum((z-z_prime) .^ 2, 1)) <= h/1000;
   end
-end
-
-function [d] = mynorm(x)
-  d = sqrt(sum(x.^2));
-end
-
-function [k] = kernel(x, h)
-  k = exp(-((mynorm(x)/h)^2));
 end
 ```
 
@@ -348,7 +348,7 @@ Running this code as instructed produced the following plot:
 
 ![Result of Mean-Shift with blobs data](paths.pdf)
 
-The first run with $h=0.2$ took 37 iterations and the second run with $h=2$ took 14 iterations.
+The first run with $h=0.2$ took 36 iterations and the second run with $h=2$ took 13 iterations.
 
 #### (b)
 
@@ -359,49 +359,44 @@ With $h=2$ we have a larger neighborhood size, so instead of finding a local mod
 
 ### (a)
 
-My implementation of the mean-shift clustering algorithm, with an improvement to speed up mean-shift, is shown below with the functions `kernel` and `mynorm` being the same as in 3(a) above.
+My implementation of the mean-shift clustering algorithm, with an improvement to speed up mean-shift, is shown below.
+
+**meanShiftCluster.m**:
 
 ```
 function [U, R] = meanShiftCluster(Z, h)
-  [d, I] = size(Z)
-
+  [d, I] = size(Z);
   M = zeros(d, I);   
   for i=1:I
-    M(:, i) = meanShiftFaster(Z(:, i), Z, h);
+    zstart = Z(:, i);
+    idx = rangesearch(zstart', Z', h/100);
+    keep = cellfun(@isempty, idx);
+    tmpZ = Z(:, keep);
+    [d, I] = size(tmpZ);
+    z_prime = zstart;
+    terminate = false;
+    while ~terminate
+      z = z_prime;
+      diff = z * ones(1, I) - tmpZ;
+      norms = sqrt(sum(diff .^ 2, 1));
+      kernel = exp(-((norms/h).^2));
+      z_prime = (tmpZ * kernel') ./ sum(kernel, 2);
+      terminate = sqrt(sum((z-z_prime) .^ 2, 1)) <= h/1000;
+    end
+    M(:, i) = z;
   end
 
   U = nearUniqueCols(M, h/100);
   K = size(U, 2);
-  K
-  R = zeros(K, I);
+  R = false(K, I);
   for k=1:K
     for i=1:I
-      if euclid(M(:, i) - U(:, k)) < h/100
+      if sqrt(sum((M(:, i) - U(:, k)).^2)) < h/100
         R(k, i) = 1;
       else
         R(k, i) = 0;
       end
     end
-  end
-end
-
-function [z, zh] = meanShiftFaster(zstart, Z, h)
-  idx = rangesearch(zstart', Z', h/100);
-  keep = cellfun(@isempty, idx);
-  Z = Z(:, keep);
-  [d, I] = size(Z);
-  z_prime = zstart;
-  zh = z_prime;
-  terminate = false;
-  while ~terminate
-    z = z_prime;
-    numer = zeros(d, I);
-    for i=1:I
-      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
-    end
-    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2);
-    zh = [zh'; z_prime']';
-    terminate = mynorm(z-z_prime) <= h/1000;
   end
 end
 
@@ -417,7 +412,7 @@ end
 function [u] = unique(mx, x, tau)
   for l=1:size(mx,2)
     col = mx( :, l);
-    dist = euclid(col-x);
+    dist = sqrt(sum((col-x).^2));
     if dist < tau
       u = mx;
       return
@@ -425,13 +420,9 @@ function [u] = unique(mx, x, tau)
   end
   u = [mx'; x']';
 end
-
-function [d] = euclid(x)
-  d = sqrt(sum(x.^2));
-end
 ```
 
-The running time of my code was about 1312 seconds on a 2-core 2010 Macbook Pro running OS X 10.9. The algorithm found two clusters, shown below.
+The running time of my code was 14.91 seconds (using the `timeit` function) on a 2-core 2010 Macbook Pro running OS X 10.9. The algorithm found two clusters, shown below.
 
 ![Result of Mean-Shift Clustering with bananas data and h=0.8](bananasMS.pdf)
 

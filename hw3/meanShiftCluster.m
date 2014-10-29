@@ -1,56 +1,37 @@
 function [U, R] = meanShiftCluster(Z, h)
-  [d, I] = size(Z)
-  % size(U) = d x K with K modes
-  % size(R) = K x I matrix of cluster memberships
-  
+  [d, I] = size(Z);
   M = zeros(d, I);   
   for i=1:I
-    i
-    M(:, i) = meanShiftFaster(Z(:, i), Z, h);
+    zstart = Z(:, i);
+    idx = rangesearch(zstart', Z', h/100);
+    keep = cellfun(@isempty, idx);
+    tmpZ = Z(:, keep);
+    [d, I] = size(tmpZ);
+    z_prime = zstart;
+    terminate = false;
+    while ~terminate
+      z = z_prime;
+      diff = z * ones(1, I) - tmpZ;
+      norms = sqrt(sum(diff .^ 2, 1));
+      kernel = exp(-((norms/h).^2));
+      z_prime = (tmpZ * kernel') ./ sum(kernel, 2);
+      terminate = sqrt(sum((z-z_prime) .^ 2, 1)) <= h/1000;
+    end
+    M(:, i) = z;
   end
 
   U = nearUniqueCols(M, h/100);
   K = size(U, 2);
-  K
-  R = zeros(K, I);
+  R = false(K, I);
   for k=1:K
     for i=1:I
-%       R(k, i) = (all(M(:, i) == U(:, k)));
-      if euclid(M(:, i) - U(:, k)) < h/100
+      if sqrt(sum((M(:, i) - U(:, k)).^2)) < h/100
         R(k, i) = 1;
       else
         R(k, i) = 0;
       end
     end
   end
-end
-
-function [z, zh] = meanShiftFaster(zstart, Z, h)
-  idx = rangesearch(zstart', Z', h/100);
-  keep = cellfun(@isempty, idx);
-  Z = Z(:, keep);
-  [d, I] = size(Z);
-  z_prime = zstart;
-  zh = z_prime;
-  terminate = false;
-  while ~terminate
-    z = z_prime;
-    numer = zeros(d, I);
-    for i=1:I
-      numer(:, i) = Z(:, i) * kernel(z-Z(:, i), h);
-    end
-    z_prime = sum(numer, 2) ./ sum(numer ./ Z, 2);
-    zh = [zh'; z_prime']';
-    terminate = mynorm(z-z_prime) <= h/1000;
-  end
-end
-
-function [d] = mynorm(x)
-  d = sqrt(sum(x.^2));
-end
-
-function [k] = kernel(x, h)
-  k = exp(-((mynorm(x)/h)^2));
 end
 
 function [u] = nearUniqueCols(mx, tau)
@@ -65,16 +46,12 @@ end
 function [u] = unique(mx, x, tau)
   for l=1:size(mx,2)
     col = mx( :, l);
-    dist = euclid(col-x);
+    dist = sqrt(sum((col-x).^2));
     if dist < tau
       u = mx;
       return
     end
   end
   u = [mx'; x']';
-end
-
-function [d] = euclid(x)
-  d = sqrt(sum(x.^2));
 end
 
