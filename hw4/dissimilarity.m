@@ -7,10 +7,9 @@ function D = dissimilarity(I, x, y, sigma)
   D = 0; 
   for i=u % todo: vectorize
     for j=u
-      z = [i j]'
-      wz =  w(i+h, j+h)  
-      tmp = (I(z + y) - I(z + x)).^2
-      size(tmp)
+      z = [i j]';
+      wz =  w(i+h, j+h)  ;
+      tmp = (I(z + y) - I(z + x))' * (I(z + y) - I(z + x))  ;
       D = D + ( tmp);
     end
   end
