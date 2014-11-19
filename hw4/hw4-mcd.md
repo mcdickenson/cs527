@@ -4,6 +4,10 @@ Matt Dickenson \
 CS 527 \
 Fall 2014
 
+todo:
+- fix dissimilarity.m
+- problem 2
+
 ### Problem 1
 
 
@@ -29,18 +33,18 @@ end
 
 ```
 function D = dissimilarity(I, x, y, sigma)
-  % todo: error message if x or y is too near boundary
   I = double(I);
   [w1, u] = gauss(sigma);
   h = ceil(size(u, 2)/2);
-  w = w1 * w1'; % todo: see if I can do this in a linearly separable way
+  if any((x-h) < 0)  | any((x+h) > size(I)') | any((y-h) < 0) | any((y+h) > size(I)')
+    error('Coordinates given are too close to the image boundary')
+  end
+  w = w1 * w1';
   D = 0; 
-  for i=u % todo: vectorize
+  for i=u
     for j=u
       z = [i j]';
-      wz =  w(i+h, j+h)  ;
-      tmp = (I(z + y) - I(z + x))' * (I(z + y) - I(z + x))  ;
-      D = D + ( tmp);
+      D = D + (w(i+h, j+h) * (I(z + y) - I(z + x))' * (I(z + y) - I(z + x)));
     end
   end
 end
@@ -52,18 +56,43 @@ end
 
 ![Meshplot of `dissimilarity` output for $i=3$](1b3.png)
 
-1: flat
-2: edge
-3: corner
-
 #### (c)
 
-The dissimilarity output for $i=1$ is relatively flat, especially compared to the other two plots. There is a slight $v$-shape in the $d_1$ and $d_2$ directions, but given the magnitude of the values this is likely due to image noise.
+The dissimilarity output for $i=1$ is relatively flat, especially compared to the other two plots. Given the magnitude of the values, the variation is likely due to image noise.
 
 In the second window ($i=2$), the dissimilarity values are flat in the $d_2$ direction and $u$-shaped in the $d_1$ direction. The corresponds to an edge in the image, which is qualitatively more interesting than the flat window when $i=1$ but not as interesting as the bowl shape ($i=3$).
 
 The third window is the most interesting of the three: although its maximum $D$ values are slightly lower than the maxima in the second window, the bowl shape is much more apparent. This tells us that points slightly away from $x$ in each direction are very different, and identifies $x$ as an interesting point in the image.
 
+
+
+### Problem 2
+
+#### (a)
+
+\begin{eqnarray*}
+q(x, d) &=& \frac{1}{2} {\partial Q(x, x+d) \over \partial d} \\
+&=& \frac{1}{2} \Big[ {\partial Q(x, x+d) \over \partial d_1}~~~~~{\partial Q(x, x+d) \over \partial d_2}  \Big]^T \\
+&=& \frac{1}{2} \Big[ 2 \sum_{z \in \mathbb{Z}^2} w(z) \{ \nabla I(z+x) \}^T d_1 ~~~~~ 2 \sum_{z \in \mathbb{Z}^2}w(z) \{ \nabla I(z+x) \}^T d_2 \Big]^T \\
+&=& \Big[ \sum_{z \in \mathbb{Z}^2} w(z) \{ \nabla I(z+x) \}^T d_1 ~~~~~ \sum_{z \in \mathbb{Z}^2}w(z) \{ \nabla I(z+x) \}^T d_2 \Big]^T \\
+\end{eqnarray*}
+
+#### (b)
+\begin{eqnarray*}
+A(x)d &=& q(x, d) \\
+A(X) d d^{-1} &=& q(x, d) d^{-1} \\
+A(X) &=& q(x, d) d^{-1} \\
+&=& \Big[ \sum_{z \in \mathbb{Z}^2} w(z) \{ \nabla I(z+x) \}^T d_1 ~~~~~ \sum_{z \in \mathbb{Z}^2}w(z) \{ \nabla I(z+x) \}^T d_2 \Big]^T d^{-1} \\
+&=& \Big[ \sum_{z \in \mathbb{Z}^2} w(z) \{ \nabla I(z+x) \}^T  ~~~~~ \sum_{z \in \mathbb{Z}^2}w(z) \{ \nabla I(z+x) \}^T  \Big]^T \\
+\end{eqnarray*}
+
+#### (b)
+\begin{eqnarray*}
+A(x)d &=& q(x, d) \\
+ { \partial A(x)d \over \partial d^T } &=& { \partial q(x, d) \over \partial d^T } \\
+&=& [({\partial q_1 \over \partial d_1 }~~~~~{\partial q_2 \over \partial d_1})^T ({\partial q_1 \over \partial d_2 }~~~~~{\partial q_2 \over \partial d_2})^T ]^T \\
+&=& \frac{1}{2} H
+\end{eqnarray*}
 
 
 ### Problem 3

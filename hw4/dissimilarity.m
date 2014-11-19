@@ -1,16 +1,16 @@
 function D = dissimilarity(I, x, y, sigma)
-  % todo: error message if x or y is too near boundary
   I = double(I);
   [w1, u] = gauss(sigma);
   h = ceil(size(u, 2)/2);
-  w = w1 * w1'; % todo: see if I can do this in a linearly separable way
+  if any((x-h) < 0)  | any((x+h) > size(I)') | any((y-h) < 0) | any((y+h) > size(I)')
+    error('Coordinates given are too close to the image boundary')
+  end
+  w = w1 * w1';
   D = 0; 
-  for i=u % todo: vectorize
+  for i=u
     for j=u
       z = [i j]';
-      wz =  w(i+h, j+h)  ;
-      tmp = (I(z + y) - I(z + x))' * (I(z + y) - I(z + x))  ;
-      D = D + ( tmp);
+      D = D + (w(i+h, j+h) * (I(z + y) - I(z + x))' * (I(z + y) - I(z + x)));
     end
   end
 end
