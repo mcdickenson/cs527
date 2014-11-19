@@ -52,10 +52,19 @@ end
 
 ![Meshplot of `dissimilarity` output for $i=3$](1b3.png)
 
-<!-->
+1: flat
+2: edge
+3: corner
 
-InwhatwaydothethreefunctionsD(x(i),x(i)+d)differfromeachotherqualitatively? Morespecifically,thefunctionD(x,x+ d) is nonnegative and is zero for d = 0, so in some sense it is supposed to look like a bowl (a convex paraboloid) in the vicinity of d = 0. How well-defined is the bottom of the bowl in each of the three different situations? In answering this question, pay attention also to the actual values of D (the values on the vertical axis of your plots), and keep in mind that the image is noisy. Because of this, small fluctuations in the value of D are not significant.
-<-->
+#### (c)
+
+The dissimilarity output for $i=1$ is relatively flat, especially compared to the other two plots. There is a slight $v$-shape in the $d_1$ and $d_2$ directions, but given the magnitude of the values this is likely due to image noise.
+
+In the second window ($i=2$), the dissimilarity values are flat in the $d_2$ direction and $u$-shaped in the $d_1$ direction. The corresponds to an edge in the image, which is qualitatively more interesting than the flat window when $i=1$ but not as interesting as the bowl shape ($i=3$).
+
+The third window is the most interesting of the three: although its maximum $D$ values are slightly lower than the maxima in the second window, the bowl shape is much more apparent. This tells us that points slightly away from $x$ in each direction are very different, and identifies $x$ as an interesting point in the image.
+
+
 
 ### Problem 3
 
