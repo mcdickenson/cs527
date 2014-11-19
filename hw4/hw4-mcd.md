@@ -4,9 +4,6 @@ Matt Dickenson \
 CS 527 \
 Fall 2014
 
-todo:
-- fix dissimilarity.m
-- problem 2
 
 ### Problem 1
 
@@ -115,7 +112,7 @@ function lambdaMin = smallEigenvalue(I, sigma)
 end
 ```
 
-The image produced by running this function on `shadow.jpg` is:
+The image produced by running this function on `shadow.jpg` is shown below.
 
 ![Interesting windows in `shadow.jpg` identified by `smallEigenvalue`](3a.png)
 
