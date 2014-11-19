@@ -64,3 +64,13 @@ mesh(disp3)
 xlabel({'d2'},'HorizontalAlignment','right');
 ylabel({'d1'},'HorizontalAlignment','left');
 title({'Dissimilarity for i=3'});
+
+% 3a
+lambdaMin = smallEigenvalue(img, sigma);
+clf
+imagesc(lambdaMin)
+colormap gray
+cmap = 1 - colormap;
+colormap(cmap);
+axis image
+axis off
